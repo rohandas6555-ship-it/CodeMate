@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeMate | Polyglot DSA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#09090b',
+                        surface: '#18181b',
+                        accent: '#3b82f6',
+                        border: '#27272a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    animation: {
+                        'cursor': 'cursor .75s step-end infinite',
+                    },
+                    keyframes: {
+                        cursor: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #09090b;
+            color: #e4e4e7;
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 4px;
+        }
+
+        /* Typography */
+        .prose p {
+            margin-bottom: 1.25rem;
+            line-height: 1.75;
+            color: #d4d4d8;
+        }
+
+        .prose h1,
+        .prose h2 {
+            color: #fff;
+            font-weight: 600;
+            margin-top: 2rem;
+        }
+
+        .prose strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Code Blocks */
+        .code-container {
+            margin: 1.5rem 0;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #18181b;
+            border-bottom: 1px solid #27272a;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            color: #a1a1aa;
+        }
+
+        .copy-btn {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .copy-btn:hover {
+            color: #fff;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Loader */
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden">
+
+    <main class="flex-1 flex flex-col relative h-full">
+
+        <header class="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-20 pointer-events-none">
+            <div class="flex items-center gap-3 pointer-events-auto">
+                <div
+                    class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold font-mono">
+                    >_</div>
+                <span class="font-semibold text-white tracking-tight">CodeMate</span>
+            </div>
+            <div class="text-xs font-mono text-gray-500 bg-surface px-2 py-1 rounded border border-border">
+                Gemini 2.0 Flash
+            </div>
+        </header>
+
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 scroll-smooth">
+            <div class="max-w-3xl mx-auto space-y-8 py-8 pb-32 pt-20">
+
+                <div id="hero"
+                    class="flex flex-col items-center justify-center min-h-[60vh] text-center transition-opacity duration-500">
+
+                    <div
+                        class="w-full max-w-lg bg-black border border-border rounded-xl shadow-2xl overflow-hidden mb-8 text-left font-mono text-sm">
+                        <div class="bg-surface px-4 py-2 border-b border-border flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="p-6 text-green-400 space-y-2">
+                            <div><span class="text-blue-400">user@codemate</span>:~$ init dsa_learning_module</div>
+                            <div>> Loading Algorithms... <span class="text-white">Done</span></div>
+                            <div>> Loading Data Structures... <span class="text-white">Done</span></div>
+                            <div class="flex">
+                                <span class="text-blue-400">user@codemate</span>:~$ <span class="text-white ml-2">Master
+                                    DSA in </span>
+                                <span id="typewriter" class="text-yellow-400 ml-2"></span><span
+                                    class="animate-cursor inline-block w-2 h-4 bg-white ml-1 align-middle"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-3">DSA in Any Language</h1>
+                    <p class="text-gray-400 max-w-md mx-auto">
+                        Ask for solutions in Python, Java, C++, JavaScript, or Go.
+                        I analyze complexity and logic for every level.
+                    </p>
+
+                    <div class="flex flex-wrap justify-center gap-3 mt-8">
+                        <button onclick="fillInput('Explain Linked List in Java')"
+                            class="px-4 py-2 rounded-full border border-border bg-surface hover:bg-white/10 text-xs text-gray-300 transition">
+                            ☕ Java Linked List
+                        </button>
+                        <button onclick="fillInput('Implement Binary Search in Python')"
+                            class="px-4 py-2 rounded-full border border-border bg-surface hover:bg-white/10 text-xs text-gray-300 transition">
+                            🐍 Python Binary Search
+                        </button>
+                        <button onclick="fillInput('Merge Sort C++ Implementation')"
+                            class="px-4 py-2 rounded-full border border-border bg-surface hover:bg-white/10 text-xs text-gray-300 transition">
+                            ⚙️ C++ Merge Sort
+                        </button>
+                    </div>
+                </div>
+
+                <div id="messages-list" class="space-y-6"></div>
+
+                <div id="loader" class="hidden">
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center flex-shrink-0"><i
+                                class="ri-robot-2-fill text-white"></i></div>
+                        <div class="flex items-center gap-1 mt-3">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="w-full bg-bg p-4 pb-6 z-30">
+            <div class="max-w-3xl mx-auto relative">
+
+                <div id="file-preview"
+                    class="hidden absolute -top-10 left-0 bg-surface border border-border px-3 py-1 rounded text-xs text-gray-400 flex items-center gap-2">
+                    <i class="ri-file-code-line"></i> <span id="filename">file.js</span>
+                    <button onclick="clearFile()" class="ml-2 hover:text-red-400"><i class="ri-close-line"></i></button>
+                </div>
+
+                <div
+                    class="bg-surface rounded-2xl border border-border flex items-end p-2 focus-within:border-blue-500/50 transition-colors shadow-lg">
+                    <button onclick="document.getElementById('file-upload').click()"
+                        class="p-3 text-gray-400 hover:text-white rounded-xl transition">
+                        <i class="ri-attachment-2 text-lg"></i>
+                    </button>
+                    <input type="file" id="file-upload" class="hidden" onchange="handleFile(this)">
+
+                    <textarea id="user-input" rows="1"
+                        class="w-full bg-transparent text-white placeholder-gray-500 p-3 max-h-48 resize-none focus:outline-none font-sans text-[15px]"
+                        placeholder="Ask CodeMate about any algorithm..."></textarea>
+
+                    <button onclick="sendMessage()" id="send-btn"
+                        class="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition shadow-lg disabled:opacity-50">
+                        <i class="ri-arrow-up-line font-bold text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- TYPEWRITER EFFECT ---
+        const languages = ["Python...", "C++...", "Java...", "JavaScript...", "Go..."];
+        let langIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typeSpeed = 100;
+        const deleteSpeed = 50;
+        const delayBetween = 2000;
+
+        function typeWriter() {
+            const currentLang = languages[langIndex];
+            const typeElement = document.getElementById("typewriter");
+
+            if (!typeElement) return; // Stop if hero removed
+
+            if (isDeleting) {
+                typeElement.innerText = currentLang.substring(0, charIndex--);
+            } else {
+                typeElement.innerText = currentLang.substring(0, charIndex++);
+            }
+
+            let nextSpeed = isDeleting ? deleteSpeed : typeSpeed;
+
+            if (!isDeleting && charIndex === currentLang.length + 1) {
+                isDeleting = true;
+                nextSpeed = delayBetween;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                langIndex = (langIndex + 1) % languages.length;
+            }
+
+            setTimeout(typeWriter, nextSpeed);
+        }
+        document.addEventListener("DOMContentLoaded", typeWriter);
+
+        // --- CHAT LOGIC ---
+        const chatContainer = document.getElementById('chat-container');
+        const msgList = document.getElementById('messages-list');
+        const userInput = document.getElementById('user-input');
+        const hero = document.getElementById('hero');
+        const loader = document.getElementById('loader');
+        let currentFile = null;
+
+        // Init Math Render
+        document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body); });
+
+        userInput.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
+
+        function fillInput(text) { userInput.value = text; userInput.focus(); }
+
+        function handleFile(input) {
+            if (input.files[0]) {
+                currentFile = input.files[0];
+                document.getElementById('file-preview').classList.remove('hidden');
+                document.getElementById('file-preview').classList.add('flex');
+                document.getElementById('filename').innerText = currentFile.name;
+            }
+        }
+
+        function clearFile() {
+            currentFile = null;
+            document.getElementById('file-upload').value = '';
+            document.getElementById('file-preview').classList.add('hidden');
+            document.getElementById('file-preview').classList.remove('flex');
+        }
+
+        function appendMessage(role, content) {
+            const div = document.createElement('div');
+            div.className = "flex gap-4 md:gap-6 animate-fade-in";
+
+            const avatar = document.createElement('div');
+            avatar.className = `w-8 h-8 rounded flex-shrink-0 flex items-center justify-center mt-1 ${role === 'ai' ? 'bg-blue-600 text-white' : 'bg-surface border border-border text-gray-300'}`;
+            avatar.innerHTML = role === 'ai' ? '<i class="ri-robot-2-fill"></i>' : '<i class="ri-user-3-fill"></i>';
+
+            const msgContent = document.createElement('div');
+            msgContent.className = "flex-1 min-w-0 prose prose-invert max-w-none pt-1";
+
+            if (role === 'ai') {
+                const rawHTML = marked.parse(content);
+                msgContent.innerHTML = rawHTML;
+
+                msgContent.querySelectorAll('pre code').forEach((block) => {
+                    const code = block.innerText;
+                    const lang = block.className.replace('language-', '') || 'Code';
+
+                    const container = document.createElement('div');
+                    container.className = 'code-container';
+
+                    const header = document.createElement('div');
+                    header.className = 'code-header';
+                    header.innerHTML = `
+                        <span class="font-mono text-xs uppercase">${lang}</span>
+                        <div class="copy-btn" onclick="copyCode(this)">
+                            <i class="ri-file-copy-line"></i> Copy
+                        </div>
+                    `;
+
+                    const hiddenArea = document.createElement('textarea');
+                    hiddenArea.className = 'hidden hidden-code';
+                    hiddenArea.value = code;
+                    header.appendChild(hiddenArea);
+
+                    const pre = document.createElement('pre');
+                    const codeEl = document.createElement('code');
+                    codeEl.className = block.className;
+                    codeEl.textContent = code;
+
+                    pre.appendChild(codeEl);
+                    container.appendChild(header);
+                    container.appendChild(pre);
+                    block.parentNode.replaceWith(container);
+                    hljs.highlightElement(codeEl);
+                });
+
+                renderMathInElement(msgContent, { delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }] });
+
+            } else {
+                msgContent.innerHTML = `<p class="whitespace-pre-wrap text-gray-200">${content}</p>`;
+                if (currentFile) msgContent.innerHTML += `<div class="mt-2 text-xs text-blue-400 bg-blue-500/10 inline-block px-2 py-1 rounded border border-blue-500/20"><i class="ri-attachment-2"></i> ${currentFile.name}</div>`;
+            }
+
+            div.appendChild(avatar);
+            div.appendChild(msgContent);
+            msgList.appendChild(div);
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        }
+
+        window.copyCode = function (btn) {
+            const area = btn.parentElement.querySelector('.hidden-code');
+            navigator.clipboard.writeText(area.value).then(() => {
+                const original = btn.innerHTML;
+                btn.innerHTML = `<i class="ri-check-line text-green-400"></i> Copied`;
+                setTimeout(() => { btn.innerHTML = original; }, 2000);
+            });
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text && !currentFile) return;
+
+            if (hero) hero.style.display = 'none';
+
+            appendMessage('user', text);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            document.getElementById('send-btn').disabled = true;
+
+            const formData = new FormData();
+            formData.append('message', text);
+            if (currentFile) formData.append('file', currentFile);
+            clearFile();
+
+            loader.classList.remove('hidden');
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+
+            try {
+                const res = await fetch('/chat', { method: 'POST', body: formData });
+                const data = await res.json();
+                loader.classList.add('hidden');
+
+                if (data.error) appendMessage('ai', `**Error:** ${data.error}`);
+                else appendMessage('ai', data.response);
+            } catch (err) {
+                loader.classList.add('hidden');
+                appendMessage('ai', `**Connection Error:** Check backend.`);
+            } finally {
+                document.getElementById('send-btn').disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>
