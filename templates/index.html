@@ -40,22 +40,27 @@
     </script>
 
     <style>
-        body { background-color: #09090b; color: #e4e4e7; overscroll-behavior-y: none; }
+        /* Base Styles */
+        body { background-color: #09090b; color: #e4e4e7; overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+        
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
 
         /* Typography & Markdown Styles */
-        .prose p { margin-bottom: 1rem; line-height: 1.6; color: #d4d4d8; }
+        .prose p { margin-bottom: 1rem; line-height: 1.6; color: #d4d4d8; font-size: 0.95rem; }
+        @media (min-width: 768px) { .prose p { font-size: 1rem; } }
+        
         .prose h1, .prose h2, .prose h3 { color: #fff; font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; }
         .prose strong { color: #fff; font-weight: 600; }
         .prose ul, .prose ol { padding-left: 1.5rem; margin-bottom: 1rem; list-style-position: outside; }
         .prose li { margin-bottom: 0.5rem; }
-        .prose a { color: #3b82f6; text-decoration: none; }
+        .prose a { color: #3b82f6; text-decoration: none; word-break: break-all; }
         
-        /* Table Styles */
-        .prose table { width: 100%; text-align: left; margin: 1rem 0; border-collapse: collapse; font-size: 0.9rem; }
-        .prose th { border-bottom: 1px solid #3f3f46; padding: 0.5rem; color: #fff; font-weight: 600; }
+        /* Table Styles (Responsive) */
+        .prose table { width: 100%; text-align: left; margin: 1rem 0; border-collapse: collapse; font-size: 0.85rem; display: block; overflow-x: auto; }
+        .prose th { border-bottom: 1px solid #3f3f46; padding: 0.5rem; color: #fff; font-weight: 600; white-space: nowrap; }
         .prose td { border-bottom: 1px solid #27272a; padding: 0.5rem; color: #a1a1aa; }
 
         /* Code Block Styles */
@@ -71,58 +76,150 @@
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* --- HERO ANIMATIONS --- */
+        .hero-bg {
+            background-image: linear-gradient(rgba(39, 39, 42, 0.5) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(39, 39, 42, 0.5) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            transform: perspective(800px) rotateX(20deg) scale(1.5);
+            animation: grid-move 20s linear infinite;
+        }
+
+        /* Reduce motion/opacity on mobile for better readability */
+        @media (max-width: 768px) {
+            .hero-bg { opacity: 0.15; animation: grid-move 30s linear infinite; }
+        }
+
+        @keyframes grid-move {
+            0% { transform: perspective(800px) rotateX(20deg) scale(1.5) translateY(0); }
+            100% { transform: perspective(800px) rotateX(20deg) scale(1.5) translateY(40px); }
+        }
+
+        .float-icon { animation: float 6s ease-in-out infinite; }
+        .float-delay-1 { animation-delay: 0s; }
+        .float-delay-2 { animation-delay: 2s; }
+        .float-delay-3 { animation-delay: 4s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .glow-text {
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
     </style>
 </head>
 
-<body class="flex h-[100dvh] flex-col overflow-hidden text-sm md:text-base">
+<body class="flex h-[100dvh] flex-col overflow-hidden text-sm md:text-base selection:bg-blue-500/30">
 
-    <header class="w-full p-4 flex justify-between items-center z-20 border-b border-white/5 bg-bg/95 backdrop-blur">
+    <header class="w-full px-4 py-3 md:p-4 flex justify-between items-center z-20 border-b border-white/5 bg-bg/95 backdrop-blur shrink-0">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold font-mono text-base">>_</div>
-            <span class="font-semibold text-white tracking-tight text-lg">CodeMate</span>
+            <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold font-mono text-sm md:text-base shadow-lg shadow-blue-500/20">>_</div>
+            <span class="font-semibold text-white tracking-tight text-base md:text-lg">CodeMate</span>
         </div>
-        <div class="text-xs font-mono text-gray-500 bg-surface px-2 py-1 rounded border border-border">v2.1 Stable</div>
+        <div class="text-[10px] md:text-xs font-mono text-gray-500 bg-surface px-2 py-1 rounded border border-border">v3.0 Ultra</div>
     </header>
 
-    <div id="chat-container" class="flex-1 overflow-y-auto scroll-smooth pt-4 pb-4">
-        <div class="max-w-3xl mx-auto px-4 w-full flex flex-col min-h-full">
+    <div id="chat-container" class="flex-1 overflow-y-auto scroll-smooth pt-4 pb-4 px-2 md:px-0">
+        <div class="max-w-3xl mx-auto w-full flex flex-col min-h-full">
 
-            <div id="hero" class="flex flex-col items-center justify-center flex-1 py-8 transition-opacity duration-500">
-                <div class="w-full max-w-lg bg-black border border-border rounded-xl shadow-2xl overflow-hidden mb-8 text-left font-mono text-xs md:text-sm mx-4">
-                    <div class="bg-surface px-3 py-2 border-b border-border flex gap-1.5">
-                        <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                        <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                        <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                    </div>
-                    <div class="p-4 md:p-6 text-green-400 space-y-2">
-                        <div><span class="text-blue-400">user@codemate</span>:~$ init dsa_module</div>
-                        <div>> Loading Algorithms... <span class="text-white">Done</span></div>
-                        <div class="flex flex-wrap">
-                            <span class="text-blue-400">user@codemate</span>:~$ <span class="text-white ml-2 mr-1">Master DSA in </span>
-                            <span class="flex">
-                                <span id="typewriter" class="text-yellow-400"></span>
-                                <span class="animate-cursor inline-block w-2 h-4 bg-white ml-1 align-middle"></span>
-                            </span>
-                        </div>
-                    </div>
+            <div id="hero" class="relative flex flex-col items-center justify-center flex-1 py-10 md:py-20 transition-opacity duration-500 overflow-hidden w-full min-h-[500px]">
+
+                <div class="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+                    <div class="absolute inset-[-50%] w-[200%] h-[200%] hero-bg opacity-30"></div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] md:w-[500px] md:h-[500px] bg-blue-600/15 rounded-full blur-[80px] md:blur-[100px]"></div>
                 </div>
 
-                <h1 class="text-2xl md:text-4xl font-bold text-white mb-3 text-center">DSA Master</h1>
-                <p class="text-gray-400 text-sm max-w-md mx-auto text-center px-4 mb-8">
-                    Ask for solutions in Python, Java, C++, or Go.<br>
-                    Includes logic, complexity analysis & diagrams.
-                </p>
+                <div class="absolute inset-0 pointer-events-none -z-10 overflow-hidden hidden md:block">
+                    <i class="ri-reactjs-line absolute top-[20%] left-[10%] text-4xl text-blue-500/20 float-icon float-delay-1"></i>
+                    <i class="ri-code-s-slash-line absolute top-[60%] left-[5%] text-6xl text-purple-500/20 float-icon float-delay-2"></i>
+                    <i class="ri-database-2-line absolute top-[15%] right-[15%] text-5xl text-green-500/20 float-icon float-delay-3"></i>
+                    <i class="ri-terminal-box-line absolute bottom-[20%] right-[10%] text-4xl text-yellow-500/20 float-icon float-delay-1"></i>
+                </div>
 
-                <div class="flex flex-wrap justify-center gap-2">
-                    <button onclick="fillInput('Explain Linked List in English')" class="px-4 py-2 rounded-full border border-border bg-surface hover:bg-white/10 text-xs text-gray-300 transition">📚 Explain Linked List</button>
-                    <button onclick="fillInput('Binary Search in Python')" class="px-4 py-2 rounded-full border border-border bg-surface hover:bg-white/10 text-xs text-gray-300 transition">🐍 Python Search</button>
-                    <button onclick="fillInput('Merge Sort C++')" class="px-4 py-2 rounded-full border border-border bg-surface hover:bg-white/10 text-xs text-gray-300 transition">⚙️ C++ Sort</button>
+                <div class="z-10 flex flex-col items-center text-center w-full max-w-4xl px-4 md:px-6">
+                    
+                    <div class="mb-4 md:mb-6 animate-fade-in">
+                        <span class="px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] md:text-xs font-mono uppercase tracking-wider">
+                            <i class="ri-sparkling-fill mr-1"></i> AI-Powered Engineering
+                        </span>
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-gray-400 mb-4 md:mb-6 glow-text tracking-tight animate-fade-in leading-tight">
+                        Code without <span class="text-blue-500">Limits.</span>
+                    </h1>
+
+                    <p class="text-gray-400 text-sm md:text-lg max-w-md md:max-w-xl mx-auto mb-8 md:mb-10 animate-fade-in px-2 leading-relaxed">
+                        Your universal coding companion for DSA, Web Dev, Cloud, and debugging complex logic.
+                    </p>
+
+                    <div class="w-full max-w-[95%] md:max-w-2xl bg-black/60 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl overflow-hidden mb-8 md:mb-12 text-left font-mono text-[10px] md:text-sm transform transition hover:scale-[1.01] duration-300 mx-auto">
+                        <div class="bg-white/5 px-3 py-2 md:px-4 md:py-3 border-b border-white/5 flex justify-between items-center">
+                            <div class="flex gap-1.5 md:gap-2">
+                                <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/80"></div>
+                                <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/80"></div>
+                                <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/80"></div>
+                            </div>
+                            <div class="text-gray-500 opacity-70">bash — 80x24</div>
+                        </div>
+                        
+                        <div class="p-4 md:p-6 space-y-2 md:space-y-3 overflow-x-auto">
+                            <div class="flex items-center whitespace-nowrap">
+                                <span class="text-blue-400 mr-2">➜</span>
+                                <span class="text-purple-400 mr-2">~</span>
+                                <span class="text-gray-300">codemate init --mode=expert</span>
+                            </div>
+                            <div class="text-gray-500 pl-4 whitespace-nowrap">
+                                > Initializing neural networks... <span class="text-green-400">Done</span><br>
+                                > Loading languages... <span class="text-green-400">Done</span>
+                            </div>
+                            <div class="flex items-center pt-2 whitespace-nowrap">
+                                <span class="text-blue-400 mr-2">➜</span>
+                                <span class="text-purple-400 mr-2">~</span>
+                                <span class="text-white">I want to learn </span>
+                                <span class="flex ml-2">
+                                    <span id="typewriter" class="text-yellow-400 font-bold"></span>
+                                    <span class="animate-cursor inline-block w-2 h-4 md:w-2.5 md:h-5 bg-blue-500 ml-1 align-middle"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-3 w-full animate-fade-in px-2">
+                        <button onclick="fillInput('Generate a React component for a Navbar')" 
+                            class="flex-1 min-w-[140px] max-w-[200px] group relative px-4 py-3 rounded-lg bg-surface border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition-all duration-300">
+                            <div class="flex items-center justify-center gap-2">
+                                <i class="ri-reactjs-fill text-blue-400 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-gray-300 text-xs md:text-sm whitespace-nowrap">React Navbar</span>
+                            </div>
+                        </button>
+
+                        <button onclick="fillInput('Explain Dijkstra Algorithm with Python code')" 
+                            class="flex-1 min-w-[140px] max-w-[200px] group relative px-4 py-3 rounded-lg bg-surface border border-white/10 hover:border-green-500/50 hover:bg-white/5 transition-all duration-300">
+                            <div class="flex items-center justify-center gap-2">
+                                <i class="ri-node-tree text-green-400 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-gray-300 text-xs md:text-sm whitespace-nowrap">Explain Algo</span>
+                            </div>
+                        </button>
+
+                        <button onclick="fillInput('Debug this Dockerfile')" 
+                            class="flex-1 min-w-[140px] max-w-[200px] group relative px-4 py-3 rounded-lg bg-surface border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition-all duration-300">
+                            <div class="flex items-center justify-center gap-2">
+                                <i class="ri-docker-fill text-blue-400 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-gray-300 text-xs md:text-sm whitespace-nowrap">Fix Dockerfile</span>
+                            </div>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div id="messages-list" class="space-y-6 pb-24"></div>
+            <div id="messages-list" class="space-y-6 pb-24 px-2 md:px-0"></div>
 
-            <div id="loader" class="hidden pb-24">
+            <div id="loader" class="hidden pb-24 pl-4 md:pl-0">
                 <div class="flex gap-4">
                     <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center flex-shrink-0"><i class="ri-robot-2-fill text-white"></i></div>
                     <div class="flex items-center gap-1 mt-3">
@@ -133,22 +230,26 @@
         </div>
     </div>
 
-    <div class="w-full bg-bg border-t border-white/5 p-3 md:p-4 z-30">
+    <div class="w-full bg-bg border-t border-white/5 p-2 md:p-4 z-30 shrink-0 safe-pb">
         <div class="max-w-3xl mx-auto relative">
             
-            <div id="file-preview" class="hidden absolute -top-12 left-0 bg-surface border border-border px-3 py-1.5 rounded text-xs text-gray-400 items-center gap-2 shadow-lg">
-                <i class="ri-file-code-line"></i> 
-                <span id="filename" class="truncate max-w-[150px]">file.js</span>
-                <button onclick="clearFile()" class="ml-2 hover:text-red-400 p-1"><i class="ri-close-line"></i></button>
+            <div id="file-preview" class="hidden absolute -top-12 left-0 bg-surface border border-border px-3 py-1.5 rounded text-xs text-gray-400 items-center gap-2 shadow-lg max-w-[90vw]">
+                <i class="ri-file-code-line flex-shrink-0"></i> 
+                <span id="filename" class="truncate">file.js</span>
+                <button onclick="clearFile()" class="ml-2 hover:text-red-400 p-1 flex-shrink-0"><i class="ri-close-line"></i></button>
             </div>
 
             <div class="bg-surface rounded-xl border border-border flex items-end p-2 shadow-lg focus-within:border-blue-500/50 transition-colors">
-                <button onclick="document.getElementById('file-upload').click()" class="p-2 text-gray-400 hover:text-white rounded-lg transition shrink-0" title="Attach Code/Image"><i class="ri-attachment-2 text-xl"></i></button>
+                <button onclick="document.getElementById('file-upload').click()" class="p-2 text-gray-400 hover:text-white rounded-lg transition shrink-0 active:scale-95" title="Attach Code/Image">
+                    <i class="ri-attachment-2 text-lg md:text-xl"></i>
+                </button>
                 <input type="file" id="file-upload" class="hidden" onchange="handleFile(this)">
 
-                <textarea id="user-input" rows="1" class="w-full bg-transparent text-white placeholder-gray-500 p-2.5 max-h-32 resize-none focus:outline-none font-sans text-base" placeholder="Ask CodeMate about DSA..."></textarea>
+                <textarea id="user-input" rows="1" class="w-full bg-transparent text-white placeholder-gray-500 p-2.5 max-h-32 resize-none focus:outline-none font-sans text-sm md:text-base" placeholder="Ask anything..."></textarea>
 
-                <button onclick="sendMessage()" id="send-btn" class="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition shadow-lg shrink-0"><i class="ri-arrow-up-line font-bold text-xl"></i></button>
+                <button onclick="sendMessage()" id="send-btn" class="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition shadow-lg shrink-0 active:scale-95">
+                    <i class="ri-arrow-up-line font-bold text-lg md:text-xl"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -159,7 +260,7 @@
         mermaid.initialize({ startOnLoad: false, theme: 'dark' });
 
         // Typewriter Effect Variables
-        const languages = ["Python...", "C++...", "Java...", "JS..."];
+        const languages = ["Python...", "React...", "Docker...", "C++...", "AWS..."];
         let langIndex = 0, charIndex = 0, isDeleting = false;
 
         // --- TYPEWRITER EFFECT FUNCTION ---
@@ -195,11 +296,21 @@
 
         // Handle Enter key to send
         userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            if (e.key === 'Enter' && !e.shiftKey) { 
+                e.preventDefault(); 
+                // Close mobile keyboard by blurring if needed, or just send
+                sendMessage(); 
+            }
         });
 
         // Helper to fill input from buttons
-        function fillInput(text) { userInput.value = text; userInput.focus(); userInput.dispatchEvent(new Event('input')); }
+        function fillInput(text) { 
+            userInput.value = text; 
+            // On mobile, focusing might pop the keyboard and hide the hero too fast, 
+            // but usually desirable.
+            userInput.focus(); 
+            userInput.dispatchEvent(new Event('input')); 
+        }
 
         // Handle File Selection
         function handleFile(input) {
@@ -220,12 +331,12 @@
         // Append Message to Chat Window
         function appendMessage(role, content) {
             const div = document.createElement('div');
-            div.className = "flex gap-4 animate-fade-in";
+            div.className = "flex gap-3 md:gap-4 animate-fade-in";
             
             // Avatar Icons
             const avatarHtml = role === 'ai' 
-                ? '<div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center flex-shrink-0 mt-1"><i class="ri-robot-2-fill text-white"></i></div>'
-                : '<div class="w-8 h-8 rounded bg-surface border border-border flex items-center justify-center flex-shrink-0 mt-1"><i class="ri-user-3-fill text-gray-300"></i></div>';
+                ? '<div class="w-7 h-7 md:w-8 md:h-8 rounded bg-blue-600 flex items-center justify-center flex-shrink-0 mt-1"><i class="ri-robot-2-fill text-white text-xs md:text-sm"></i></div>'
+                : '<div class="w-7 h-7 md:w-8 md:h-8 rounded bg-surface border border-border flex items-center justify-center flex-shrink-0 mt-1"><i class="ri-user-3-fill text-gray-300 text-xs md:text-sm"></i></div>';
 
             const msgContent = document.createElement('div');
             msgContent.className = "flex-1 min-w-0 prose prose-invert max-w-none pt-1";
@@ -356,11 +467,10 @@
                 console.error(err);
             } finally {
                 document.getElementById('send-btn').disabled = false;
-                // Keep focus on input for desktop users
+                // Keep focus on input for desktop users, mobile users might prefer keyboard to stay hidden until tap
                 if(window.innerWidth > 768) userInput.focus();
             }
         }
     </script>
 </body>
 </html>
-
